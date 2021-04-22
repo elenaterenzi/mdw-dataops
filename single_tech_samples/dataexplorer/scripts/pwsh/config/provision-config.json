@@ -1,0 +1,25 @@
+{
+    "AppName":"<Replace with Your Setting>",
+    "DeployClientId":"<Replace with Your Setting>",
+    "DeploySecret":"<Replace with Your Setting>",    
+    "DeployObjectId":"<Replace with Your Setting>",
+    "AzureSubscriptionId":"<Replace with Your Setting>",
+    "AzureSubscriptionName":"<Replace with Your Setting>",
+    "AzureTenantId":"<Replace with Your Setting>",
+    "ResourceGroupName": "<Replace with Your Setting>",
+    "Location": "<Replace with Your Setting>",  
+    "AutoAzLogout": true,
+    "KeyVault": {
+        "KeyVaultName": <Replace with Your Setting>"
+    },
+    "ADX": {
+        "ClusterName": "<Replace with Your Setting>",
+        "ClusterSkuName": "Dev(No SLA)_Standard_D11_v2",
+        "ClusterSkuTier": "Basic",
+        "ClusterSkuCapacity": 1,
+        "AvaliabilityZones":["1"],
+        "ADXTemplatePath": "../Azure/ADX/ADX.json",
+        "TableRetentionDays": "100",
+        "DatabaseNum":1
+    }
+}

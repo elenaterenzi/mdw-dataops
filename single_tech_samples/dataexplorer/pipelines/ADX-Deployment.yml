@@ -1,0 +1,92 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+    vmImage: ubuntu-latest
+
+variables:
+- name: DeployClientId
+  value: 6cb75a8c-29b5-4e1d-a383-540fc1e210e7
+- name: DeploySecret
+  value: 2ijIj0ccWxu8wrCxg6XY1qlD_y06e_y7Jv
+- name: DeployObjectId
+  value: 40a92ba6-dbbb-4099-9ae9-33fd5444fe6a
+- name: AzureSubscriptionId
+  value: acdad96f-6d6e-4cb0-a4e6-e736d462c42e
+- name: AzureSubscriptionName
+  value: nparker-daroch-hermanwu
+- name: AzureTenantId
+  value: 72f988bf-86f1-41af-91ab-2d7cd011db47
+- name: ResourceGroupName
+  value: HDataOps01
+- name: Location
+  value: southeastasia
+- name: KeyVaultName
+  value: ADXADOKeyVault
+- name:  ClusterName
+  value: DataOpsHerman01
+- name:  ClusterSkuName
+  value: Dev(No SLA)_Standard_D11_v2
+- name:  ClusterSkuTier
+  value: Basic
+
+jobs:
+- job: PrepareEnvironment
+  displayName: 'Prepare Pipeline Environment'
+  steps:
+    - script: | 
+        echo 'Check key environment variables (using bash)'
+        echo 'Reource Group Name: ' $RESOURCEGROUPNAME
+        echo Location: $LOCATION
+      displayName: 'Provision Azure Data Explorer'
+    - pwsh: Write-Host "ADX Cluster Name is $Env:CLUSTERNAME"
+    - script: |      
+        python -m pip install --upgrade pip      
+        pip install -r $(Build.SourcesDirectory)/src/python/requirements.txt
+      displayName: 'Install Python dependencies'
+- job: Build 
+  displayName: 'Build - Provision ADX'
+  dependsOn: PrepareEnvironment
+  steps:
+    - script: | 
+        echo Start to Provision Azure Data Explorer 
+      displayName: 'Provision Azure Data Explorer'
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'nparker-daroch-hermanwu(acdad96f-6d6e-4cb0-a4e6-e736d462c42e)'
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        scriptPath: './scripts/powershell/storage/provision-datalake.ps1'
+        workingDirectory: './scripts/powershell/storage'
+      displayName: 'Create Azure Data Explorer (using Storage intead for quick test)'
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'filePath' # Options: filePath, inline
+        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py 
+      displayName: 'Create Azure Data Explorer Databases and Tables (Mock code now)'
+- job: validate 
+  displayName: 'Validate ADX Tables'
+  dependsOn: Build
+  steps:
+    - script: echo 'Start to Validate Azure Data Explorer Database & Tables' 
+      displayName: echo 'Validate Azure Data Explorer Database & Tables'
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'filePath' # Options: filePath, inline
+        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py
+      displayName: 'Insert Test Data '
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'filePath' # Options: filePath, inline
+        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py
+      displayName: 'Validate Test Data '
+    - task: PythonScript@0
+      inputs:
+        scriptSource: 'filePath' # Options: filePath, inline
+        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py
+      displayName: 'Remove Test Data '
