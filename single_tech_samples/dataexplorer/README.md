@@ -16,6 +16,7 @@ Contents of this sample includes:
 3. Validate Table/Database creation 
 
 
+
 ## Solution Overview
 
 The solution will demonstrate how to use the CI/CD process to create a multi-tenant Azure Data Explorer cluster. We use [Multi-tenant app with database-per-tenant](https://docs.microsoft.com/en-us/azure/azure-sql/database/saas-tenancy-app-design-patterns#d-multi-tenant-app-with-database-per-tenant) design.   It will create multiple databases on a scalable ADX cluster to provide a cost-effective way of sharing resources across many databases. 
