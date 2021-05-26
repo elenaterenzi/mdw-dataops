@@ -1,33 +1,42 @@
-# DataOPs with Azure Data Explorer
+# Azure Data Explorer
 
-This sample demonstrates the CI/CD process to create a multi-tenant Azure Data Explorer cluster.
+This sample demonstrates the CI/CD process to create an multi-tenant Azure Data Explorer cluster.
 
 
 [Azure Data Explorer](https://azure.microsoft.com/en-us/services/data-explorer/#features) is a fast, fully managed data analytics service for large volumes of data ingesting from applications, websites, IoT devices, and more. 
 
-The following sample demonstrates how you can create CI/CD pipelines to provide Azure Data Explorer services and deploy database changes.  
+The following sample demonstrates how you can create CI/CD pipelines to provision Azure Data Explorer services and deploy database changes to it.  
 
 ## Contents
 
 Contents of this sample includes: 
 
-1. Provision Azure Data Explorer 
-2. Create Multi-Tenanet Database and Table 
-3. Validate Table/Database creation 
-
-
+- [Azure Data Explorer](#azure-data-explorer)
+  - [Contents](#contents)
+  - [Solution Overview](#solution-overview)
+    - [Architecture](#architecture)
+    - [Continuous Integration and Continuous Delivery](#continuous-integration-and-continuous-delivery)
+    - [Technologies used](#technologies-used)
+  - [Key Learning](#key-learning)
+  - [Key Concepts](#key-concepts)
+  - [How to use the sample](#how-to-use-the-sample)
+    - [Prerequests](#prerequests)
+    - [Software Prequests](#software-prequests)
+    - [Setup and Deployment](#setup-and-deployment)
+    - [Run the sample](#run-the-sample)
+    - [Known Issues, Limitation and Workarounds](#known-issues-limitation-and-workarounds)
 
 ## Solution Overview
 
-The solution will demonstrate how to use the CI/CD process to create a multi-tenant Azure Data Explorer cluster. We use [Multi-tenant app with database-per-tenant](https://docs.microsoft.com/en-us/azure/azure-sql/database/saas-tenancy-app-design-patterns#d-multi-tenant-app-with-database-per-tenant) design.   It will create multiple databases on a scalable ADX cluster to provide a cost-effective way of sharing resources across many databases. 
+The solution will demonstrate how to use the CI/CD process to create an multi-tenant Azure Data Explorer cluster. We use [Multi-tenant app with database-per-tenant](https://docs.microsoft.com/en-us/azure/azure-sql/database/saas-tenancy-app-design-patterns#d-multi-tenant-app-with-database-per-tenant) design.   It will create multiple databases on an scalable ADX cluster to provide a cost-effective way of sharing resources across many databases. 
 
 ![imge](https://docs.microsoft.com/en-us/azure/azure-sql/database/media/saas-tenancy-app-design-patterns/saas-multi-tenant-app-database-per-tenant-pool-15.png)
 
-Each database will share the same table schema. It also includes a system configuration file and a key vault for secrets. Table schema of the databases is defined in [Kusto query language](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/concepts/#:~:text=Kusto%20query%20language%20is%20primary%20means%20of%20interaction.,queries%20and%20control%20commands%20are%20short%20textual%20%22programs%22.). 
+The solution setups up an Azure Data Explorer cluster with multiple databases. Each databases will share same table schema. It also includes ADX configuration file and a key vault for secrets. The table schema of databases are defined in [Kusto query language](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/concepts/#:~:text=Kusto%20query%20language%20is%20primary%20means%20of%20interaction.,queries%20and%20control%20commands%20are%20short%20textual%20%22programs%22.). 
 
-In the CI/CD process, we will insert sample data into the provisioned tables and validate the result to test and validate the deployment. 
+In the CI/CD process, to test and validate the deployment, we will insert sample data into the provisioned tables and validate the result. 
 
-We will also create Azure Dashboard to monitor the critical metrics of the Azure Data Explorer cluster. 
+We will also create Azure Dashboard to monitor the key matrics of Azure Data Explorer cluster. 
 
 
 ### Architecture 
@@ -37,7 +46,7 @@ The following shows the architecture of the Azure Data Explorer multi-tenancy de
 ![img](./docs/images/architecture.png)
 
 ### Continuous Integration and Continuous Delivery
-The following shows CI/CD flow suggested on the ADX DataOp pipeline.  
+The following shows CI/CD flow based on the ADX DevOp pipeline.  
 ![img](./docs/images/adx_dev_op_flow.png)
 
 
@@ -50,40 +59,40 @@ The following shows CI/CD flow suggested on the ADX DataOp pipeline.
 
 ## Key Learning 
 
-The following summarizes key learnings and best practices demonstrated by this sample solution.
+The following summarizes key learnings and best practices demonstrated by this sample solution
 
-__1. Use a centralized configuration file to store ADX cluster provision parameters__
+__1. Use a centralize configuration file to store ADX cluster provision parameters__
 
-Azure Data Explorer is a powerful data analytics platform. To optimize systerm performance under different workloads, a lot of parameters can be set and choose. We put these parameters in central configuration files to simplify the configuration and management effort. 
+Azure Data Explorer is a powerful data analytics platform. To optimize it's performance based on different workload, a lot of parameters can be set and choose. We put these parameters in a central configuration files to simply the configuration and management effort. 
 
-__2. Include multi-tenancy resource creation as part of IaC (Infrastructure as Code).__
+__2. Include  multi-tenancy resource creation as part of IaC (Infrastructure as Code).__
 
-We saw many companies leverage Azure Data Explorer to build robust data analytical application to serve their customers. In the sample, we will demonstrate how to include multi-tenancy resource creation as part of IaC. With that implementation, it not only helps simply the validation multi-tenant implementation but also helps companies to easily track multi-tenancy implementation change.  
+We saw many companies leverage Azure Data Explorer to build powerful data analytical application to serve their customers. In the sample we will demonstrate how to include multi-tenancy resource creation as part of IaC. With that implementation, it not only helps simply the  validation multi-tenant implementation but also help company to easily track multi-tenancy implementation change.  
 
 
 __3. Use sample data to test the resource provision result.__  
 
-After provisioning the cluster, database and tables, we want to validate and test if we have a ready data repository for applications. We use sample data that mimic actual data to do the end-to-end ingestion and query testing to make sure the provisioned tables meet the requirements and are ready for use. 
+After provision the cluster, database and tables, we want to validate and testing if we have a ready data repository for applications. We use sample data that mimic real data to do the end-to-end ingestion and query testing so we can make sure the provisioned tables meet the requirements and are ready for use. 
 
 __4. Store secrets in Azure Key Vault__
-We store all secrets in Azure Key Vault to make sure this sensitive information is securely stored and protected. 
+
 
 ## Key Concepts
 
 __1. Azure Data Explorer Configuration settings__
 
-Azure Data Explorer has several components inside it, and each component could be configured with specific parameters to optimize its performance. To simplify the configuration, we put the most common configuration in a centralized JSON document to quickly understand all the settings. The deployment script will provision an ADX cluster based on the JSON.     
+Azure Data Explorer has several components inside it, and each components could be configured with certain parameters to optimize it's performance . To simply the configuration, we put the most common configuration in a centralized JSON document so users can easily understand all the settings. The deployment script will provision ADX cluster based on the JSON.     
 
 __2.  multi-tenancy setting and ADX Python Utility__  
 
-To provide better flexibilities to support multi-tenancy deployment, we build an ADXUtiltiy library based on Kusto python SDk. The utility library can read multi-tenancy settings and deploy the corresponding database and tables. 
-The multi-tenancy setting is in `./pipelines/ADX-Deployment.yml` files. 
+To provide better flexibilities to support multi-tenancy deployment, we build an ADXUtiltiy liberary based on Kusto python SDk. The utility library can read multi-tenancy setting and deploy the corresponding database and tables. 
+The multi-tenancy setting are in XXX files. 
 
-ADX utility library also supports data insert and data query. We use it to insert sample data into tables to validate if we have the right configuration for multi-tenancy data. 
+ADX utility library also support data insert and data query, we use it to insert  sample data into tables to validate if we have right configuration for multi-tenancy data. 
 
 __3. Provision Pipeline__
 
-We use ADO pipeline to provision the ADX cluster resources and connect each action together. Azure ADO pipeline helps to define the CI/CD process. 
+We use ADO pipeline to provision the ADX cluster resources and connect each actions together. Azure ADO pipeline helps to define the CI/CD process. 
 
 
 - Following is the ADX pipeline in the sample
@@ -122,8 +131,9 @@ To setup the samples, run the following:
        - **GITHUB_PAT_TOKEN** - a Github PAT token. Generate them [here](https://github.com/settings/tokens). This requires "repo" scope.
 
        Optionally, set the following environment variables:
-       - **RESOURCE_GROUP_LOCATION** - Azure location to deploy resources. *Default*: `southeastasia`.
+       - **RESOURCE_GROUP_LOCATION** - Azure location to deploy resources. *Default*: `westus`.
        - **AZURE_SUBSCRIPTION_ID** - Azure subscription id to use to deploy resources. *Default*: default azure subscription. To see your default, run `az account list`.
+       - **RESOURCE_GROUP_NAME_PREFIX** - name of the resource group. This will automatically be appended with the environment name. For example: `RESOURCE_GROUP_NAME_PREFIX-dev-rg`. *Default*: mdwdo-ado-${DEPLOYMENT_ID}.
        - **DEPLOYMENT_ID** - string appended to all resource names. This is to ensure uniqueness of azure resource names. *Default*: random five character string.
        - **AZDO_PIPELINES_BRANCH_NAME** - git branch where Azure DevOps pipelines definitions are retrieved from. *Default*: master.
 
@@ -131,8 +141,8 @@ To setup the samples, run the following:
 
 2. **Deploy Azure resources**
    1. Clone locally the imported Github Repo, then `cd` into the `single_tech_samples/datafactory` folder of the repo
-   2. Run `./scripts/pwsh/deploy-pipeline.ps1`.
-      - After a successful deployment, you will find `./scripts/pwsh/config/provision-config.json` files containing essential configuration information per environment. 
+   2. Run `./deploy.sh`.
+      - After a successful deployment, you will find `.env.{environment_name}` files containing essential configuration information per environment. See [here](#deployed-resources) for list of deployed resources.
    3. As part of the deployment script, this updated the Azure DevOps Release Pipeline YAML definition to point to your Github repository. **Commit and push up these changes.**
 
 
@@ -142,19 +152,13 @@ To setup the samples, run the following:
 
 1. **Create Service Principle for deploying resources**
 
-    Run `./scripts/pwsh/create-service-principle.ps1`
-     to setup the Service Principle for the deployment. 
+    update KeyValut 
 
 2. **Modify the configuration files**
 
-   1. Modify `./scripts/pwsh/config/provision-config.json` with the ADX cluster setting and resource name in your environment.
-   2. Modify `./src/python/FieldList` which defines the table schema
-   3. Modify `./pipelines/ADX-Deployment.yml` to change the database list, tables list and testing data files list for the system. 
-   2. check-in the modified provision-config.json files 
 
 3. **Run the pipeline to deploy the resources**
 
-   Run the pipeline in Azure DevOp portal. 
 
 
 ![img](./docs/images/pipeline-create-multitenant.png)
@@ -168,4 +172,3 @@ Validate all test are successful
 ![img](./docs/images/pipeline-monitor.png)
 
 ### Known Issues, Limitation and Workarounds
-1. 
