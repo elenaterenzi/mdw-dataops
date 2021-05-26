@@ -10,10 +10,10 @@
     "Location": "<Replace with Your Setting>",  
     "AutoAzLogout": true,
     "KeyVault": {
-        "KeyVaultName": <Replace with Your Setting>"
+        "KeyVaultName": "ADXADOKeyVault"
     },
     "ADX": {
-        "ClusterName": "<Replace with Your Setting>",
+        "ClusterName": "DataOpsHerman01",
         "ClusterSkuName": "Dev(No SLA)_Standard_D11_v2",
         "ClusterSkuTier": "Basic",
         "ClusterSkuCapacity": 1,
@@ -21,5 +21,14 @@
         "ADXTemplatePath": "../Azure/ADX/ADX.json",
         "TableRetentionDays": "100",
         "DatabaseNum":1
+    }, 
+    "LogAnalytics": {
+        "WorkspaceName": "-dbs-log-analytics",
+        "ServiceTier":"PerGB2018",
+        "SecretScope": "logscope",
+        "SecretScopeKeyWorkspaceId": "databrickslogworkspaceid",
+        "SecretScopeKeyWorkspaceKey": "databrickslogworkspacekey",
+        "ARMTemplatePath": "../Azure/loganalytics/LogAnalytics.json",
+        "SparkMonitoringScript": "../Azure/databricks-monitoring/spark-monitoring.sh"
     }
 }
