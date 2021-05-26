@@ -10,83 +10,143 @@ pool:
     vmImage: ubuntu-latest
 
 variables:
-- name: DeployClientId
+- name: CLIENT_ID
   value: 6cb75a8c-29b5-4e1d-a383-540fc1e210e7
-- name: DeploySecret
-  value: 2ijIj0ccWxu8wrCxg6XY1qlD_y06e_y7Jv
+- name: SUBSCRIPTION_ID
+  value: acdad96f-6d6e-4cb0-a4e6-e736d462c42e
+- name: TENANT_ID
+  value: 72f988bf-86f1-41af-91ab-2d7cd011db47
+- name: RESOURCE_GROUP
+  value: HDataOps01
+- name: REGION
+  value: southeastasia
+- name:  CLUSTER_NAME
+  value: DataOpsHerman02
 - name: DeployObjectId
   value: 40a92ba6-dbbb-4099-9ae9-33fd5444fe6a
-- name: AzureSubscriptionId
-  value: acdad96f-6d6e-4cb0-a4e6-e736d462c42e
 - name: AzureSubscriptionName
   value: nparker-daroch-hermanwu
-- name: AzureTenantId
-  value: 72f988bf-86f1-41af-91ab-2d7cd011db47
-- name: ResourceGroupName
-  value: HDataOps01
-- name: Location
-  value: southeastasia
 - name: KeyVaultName
   value: ADXADOKeyVault
-- name:  ClusterName
-  value: DataOpsHerman01
-- name:  ClusterSkuName
+- name:  CLUSTER_SKU_NAME
   value: Dev(No SLA)_Standard_D11_v2
-- name:  ClusterSkuTier
+- name:  CLUSTER_SKU_TIER
   value: Basic
+- name: RETENTION_DAYS
+  value: 100
+- name:  MAX_BATCHTIME
+  value: 
+- name:  MAX_ITEMS
+  value: 500
+- name:  MAX_RAWSIZE
+  value: 1024
+- name: SOFTDELETEPERIOD
+  value: 3650
+- name:  HOTCACHEPERIOD
+  value: 3650
+- name:  DATA_CLUSTER
+  value: 
+- name:  INGEST_CLUSTER
+  value: 
+- name:  NUM_COMPANIES
+  value: 5
+- name:  DATABASE_LIST_STR
+  value: dataopsdb-0,dataopsdb-1,dataopsdb-3,dataopsdb-herman1
+- name:  TEST_FILE_LIST_STR
+  value: ./testdata/testdata01.json,./testdata/testdata01.json
+- name:  TABLE_LIST_STR
+  value: CO2,TEMP
+- name:  SCHEMA_FILE
+  value: FieldList
+- name:  ADX_DASHBOARD_NAME 
+  value: -adx-dashboard
+- name:  ADX_DASHBOARD_TEMPLATE
+  value: ../../../infrastructure/dashboard/adx_dashboard.json
+  
+  
 
 jobs:
-- job: PrepareEnvironment
-  displayName: 'Prepare Pipeline Environment'
+- job: CheckEnvironment
+  displayName: 'Check Pipeline Environment'
   steps:
     - script: | 
-        echo 'Check key environment variables (using bash)'
-        echo 'Reource Group Name: ' $RESOURCEGROUPNAME
-        echo Location: $LOCATION
-      displayName: 'Provision Azure Data Explorer'
-    - pwsh: Write-Host "ADX Cluster Name is $Env:CLUSTERNAME"
+        echo 'Check key environment variables using Bash'
+        echo 'Reource Group Name: '+ $RESOURCE_GROUP
+        echo Resource Location : $REGION
+        echo 'Subscription Screte: '+$CLIENT-SECRET
+      displayName: 'Check Environement Parameters in Bash'
+    - pwsh: |
+         Write-Host "Check key environment variables using Powershell Core"
+         Write-Host "ADX Cluster Name will be is $Env:CLUSTER_NAME"
+         Write-Host "ADX Schema File  will be is $Env:SCHEMA_FILE"
+         Write-Host "Subscription Screte will be is $Env:CLIENT-SECRET"
+      displayName: 'Check Environement Parameters in Power Shell Core'
+
+- job: Build 
+  displayName: 'Build - Provision ADX'
+  dependsOn: CheckEnvironment
+  steps:
+    - task: AzureKeyVault@1
+      inputs:
+        azureSubscription: 'nparker-daroch-hermanwu(acdad96f-6d6e-4cb0-a4e6-e736d462c42e)'
+        KeyVaultName: 'ADXADOKeyVault'
+        SecretsFilter: '*'
+        RunAsPreJob: false    
+    - script: | 
+        echo Start to Provision Azure Data Explorer realted resources 
+        echo 'Subscription Screte: '+$CLIENT-SECRET
+      displayName: 'Start Azure Data Explorer resources Provision '
+    - pwsh: |
+         Write-Host "Subscription Screte will be is $Env:CLIENT-SECRET"
+      displayName: 'Check Environement Parameters in Power Shell Core'
     - script: |      
         python -m pip install --upgrade pip      
         pip install -r $(Build.SourcesDirectory)/src/python/requirements.txt
       displayName: 'Install Python dependencies'
-- job: Build 
-  displayName: 'Build - Provision ADX'
-  dependsOn: PrepareEnvironment
-  steps:
-    - script: | 
-        echo Start to Provision Azure Data Explorer 
-      displayName: 'Provision Azure Data Explorer'
+    - task: AzureCLI@2
+      env:
+        CLIENT_SECRET: $(CLIENT-SECRET)
+      inputs:
+        azureSubscription: 'nparker-daroch-hermanwu(acdad96f-6d6e-4cb0-a4e6-e736d462c42e)'
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        scriptPath: './scripts/pwsh/adx/create-adx-azcli.ps1'  # Replace with  ./scripts/powershell/storage/provision-datalake.ps1
+        workingDirectory: './scripts/pwsh/adx'
+      displayName: 'Create Azure Data Explorer Cluster, DB and Tables using Python ' #(using Storage intead for quick test)
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'nparker-daroch-hermanwu(acdad96f-6d6e-4cb0-a4e6-e736d462c42e)'
         scriptType: 'pscore'
         scriptLocation: 'scriptPath'
-        scriptPath: './scripts/powershell/storage/provision-datalake.ps1'
-        workingDirectory: './scripts/powershell/storage'
-      displayName: 'Create Azure Data Explorer (using Storage intead for quick test)'
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'filePath' # Options: filePath, inline
-        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py 
-      displayName: 'Create Azure Data Explorer Databases and Tables (Mock code now)'
+        scriptPath: './scripts/pwsh/adx/create-azure-dashboard.ps1'  # Replace with  ./scripts/powershell/storage/provision-datalake.ps1
+        workingDirectory: './scripts/pwsh/adx'
+      displayName: 'Create Azure Monitor Dashboard for Azure Data Explorer ' #(using Storage intead for quick test)
+
 - job: validate 
   displayName: 'Validate ADX Tables'
   dependsOn: Build
   steps:
+    - task: AzureKeyVault@1
+      inputs:
+        azureSubscription: 'nparker-daroch-hermanwu(acdad96f-6d6e-4cb0-a4e6-e736d462c42e)'
+        KeyVaultName: 'ADXADOKeyVault'
+        SecretsFilter: '*'
+        RunAsPreJob: false  
     - script: echo 'Start to Validate Azure Data Explorer Database & Tables' 
       displayName: echo 'Validate Azure Data Explorer Database & Tables'
-    - task: PythonScript@0
+    - script: |      
+        python -m pip install --upgrade pip      
+        pip install -r $(Build.SourcesDirectory)/src/python/requirements.txt
+      displayName: 'Install Python dependencies'
+    - task: AzureCLI@2
+      env:
+        CLIENT_SECRET: $(CLIENT-SECRET)
       inputs:
-        scriptSource: 'filePath' # Options: filePath, inline
-        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py
-      displayName: 'Insert Test Data '
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'filePath' # Options: filePath, inline
-        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py
-      displayName: 'Validate Test Data '
-    - task: PythonScript@0
-      inputs:
-        scriptSource: 'filePath' # Options: filePath, inline
-        scriptPath: $(Build.SourcesDirectory)/src/python/helloworld.py
-      displayName: 'Remove Test Data '
+        azureSubscription: 'nparker-daroch-hermanwu(acdad96f-6d6e-4cb0-a4e6-e736d462c42e)'
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        scriptPath: './scripts/pwsh/adx/test-adx-table.ps1'  # Replace with  ./scripts/powershell/storage/provision-datalake.ps1
+        workingDirectory: './scripts/pwsh/adx'
+      displayName: 'Insert Test Data and Check Insert result ' #(using Storage intead for quick test)
+
+

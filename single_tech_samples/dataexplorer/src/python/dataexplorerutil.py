@@ -3,6 +3,7 @@
   The code is based on Azure Date Explorer(ADX) python SDK. 
   It simplied ADX database/table operations by automatically generate operation commands based on pre-defined schema. 
 """
+
 import os
 import sys
 import argparse
@@ -69,23 +70,23 @@ class ADXHelper:
         #global MAX_BATCHTIME, MAX_ITEMS, MAX_RAWSIZE
         #global SOFTDELETEPERIOD, HOTCACHEPERIOD
         #global TABLE_LIST_STR, TABLE_LIST
-        ADXHelper.RETENTION_DAYS = os.getenv('RETENTION_DAYS', ADXHelper.RETENTION_DAYS)
-        ADXHelper.RESOURCE_GROUP = os.getenv('RESOURCE_GROUP')
-        ADXHelper.REGION = os.getenv('REGION')
-        ADXHelper.CLIENT_ID = os.getenv('CLIENT_ID')
-        ADXHelper.CLIENT_SECRET = os.getenv('CLIENT_SECRET')
-        ADXHelper.TENANT_ID = os.getenv('TENANT_ID')
-        ADXHelper.SUBSCRIPTION_ID = os.getenv('SUBSCRIPTION_ID')
-        ADXHelper.CLUSTER_NAME = os.getenv('CLUSTER_NAME')
-        ADXHelper.MAX_BATCHTIME = os.getenv('MAX_BATCHTIME', ADXHelper.MAX_BATCHTIME)
-        ADXHelper.MAX_ITEMS = int(os.getenv('MAX_ITEMS', ADXHelper.MAX_ITEMS))
-        ADXHelper.MAX_RAWSIZE = int(os.getenv('MAX_RAWSIZE', ADXHelper.MAX_RAWSIZE))
-        ADXHelper.SOFTDELETEPERIOD = int(os.getenv('SOFTDELETEPERIOD', ADXHelper.SOFTDELETEPERIOD))
-        ADXHelper.HOTCACHEPERIOD = int(os.getenv('HOTCACHEPERIOD', ADXHelper.HOTCACHEPERIOD))
-        ADXHelper.DATA_CLUSTER = f"https://{ADXHelper.CLUSTER_NAME}.{ADXHelper.REGION}.kusto.windows.net"
-        ADXHelper.INGEST_CLUSTER = f"https://ingest-{ADXHelper.CLUSTER_NAME}.{ADXHelper.REGION}.kusto.windows.net"
-        ADXHelper.TABLE_LIST_STR =  os.getenv('TABLE_LIST_STR', ADXHelper.TABLE_LIST_STR)
-        ADXHelper.TABLE_LIST = ADXHelper.TABLE_LIST_STR.split(',')
+        self.RETENTION_DAYS = os.getenv('RETENTION_DAYS', self.RETENTION_DAYS)
+        self.RESOURCE_GROUP = os.getenv('RESOURCE_GROUP')
+        self.REGION = os.getenv('REGION')
+        self.CLIENT_ID = os.getenv('CLIENT_ID')
+        self.CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+        self.TENANT_ID = os.getenv('TENANT_ID')
+        self.SUBSCRIPTION_ID = os.getenv('SUBSCRIPTION_ID')
+        self.CLUSTER_NAME = os.getenv('CLUSTER_NAME')
+        self.MAX_BATCHTIME = os.getenv('MAX_BATCHTIME', self.MAX_BATCHTIME)
+        self.MAX_ITEMS = int(os.getenv('MAX_ITEMS', self.MAX_ITEMS))
+        self.MAX_RAWSIZE = int(os.getenv('MAX_RAWSIZE', self.MAX_RAWSIZE))
+        self.SOFTDELETEPERIOD = int(os.getenv('SOFTDELETEPERIOD', self.SOFTDELETEPERIOD))
+        self.HOTCACHEPERIOD = int(os.getenv('HOTCACHEPERIOD', self.HOTCACHEPERIOD))
+        self.DATA_CLUSTER = f"https://{self.CLUSTER_NAME}.{self.REGION}.kusto.windows.net"
+        self.INGEST_CLUSTER = f"https://ingest-{self.CLUSTER_NAME}.{self.REGION}.kusto.windows.net"
+        self.TABLE_LIST_STR =  os.getenv('TABLE_LIST_STR', self.TABLE_LIST_STR)
+        self.TABLE_LIST = self.TABLE_LIST_STR.split(',')
  
     def initialize_kusto_client(self):
         """initialize kusto client
@@ -94,25 +95,25 @@ class ADXHelper:
             #global SERVICE_CLIENT, KUSTO_MGMT_CLIENT, QUEUEDINGESTCLIENT
 
             credentials = ServicePrincipalCredentials(
-                client_id=ADXHelper.CLIENT_ID,
-                secret=ADXHelper.CLIENT_SECRET,
-                tenant=ADXHelper.TENANT_ID
+                client_id=self.CLIENT_ID,
+                secret=self.CLIENT_SECRET,
+                tenant=self.TENANT_ID
             )
 
-            ADXHelper.KUSTO_MGMT_CLIENT = KustoManagementClient(credentials, ADXHelper.SUBSCRIPTION_ID)
+            self.KUSTO_MGMT_CLIENT = KustoManagementClient(credentials, self.SUBSCRIPTION_ID)
             data_kcsb = KustoConnectionStringBuilder.with_aad_application_key_authentication(
-                ADXHelper.DATA_CLUSTER,
-                ADXHelper.CLIENT_ID,
-                ADXHelper.CLIENT_SECRET,
-                ADXHelper.TENANT_ID)
-            ADXHelper.SERVICE_CLIENT = KustoClient(data_kcsb)
+                self.DATA_CLUSTER,
+                self.CLIENT_ID,
+                self.CLIENT_SECRET,
+                self.TENANT_ID)
+            self.SERVICE_CLIENT = KustoClient(data_kcsb)
 
             ingest_kcsb = KustoConnectionStringBuilder.with_aad_application_key_authentication(
-                ADXHelper.INGEST_CLUSTER,
-                ADXHelper.CLIENT_ID,
-                ADXHelper.CLIENT_SECRET,
-                ADXHelper.TENANT_ID)
-            ADXHelper.QUEUEDINGESTCLIENT=QueuedIngestClient(ingest_kcsb)
+                self.INGEST_CLUSTER,
+                self.CLIENT_ID,
+                self.CLIENT_SECRET,
+                self.TENANT_ID)
+            self.QUEUEDINGESTCLIENT=QueuedIngestClient(ingest_kcsb)
 
         except Exception as err:
             print("error for KustoClient")
@@ -193,7 +194,7 @@ class ADXHelper:
         :type table: string
         """
         command = ".alter-merge table %s policy retention softdelete = %sd \
-        recoverability = disabled" % (table, RETENTION_DAYS)
+        recoverability = disabled" % (table, self.RETENTION_DAYS)
         return command
 
     def ingestion_mapping_command(self,table, schema_file):
@@ -204,7 +205,7 @@ class ADXHelper:
         #TODO:Change mapping name to variable#TODO:Change mapping name to env variable
         #TODO:Need to align with function setting
         command = '.create-or-alter table %s ingestion json mapping "json_mapping_01"\n%s' \
-        % (table, get_ingest_mapping(schema_file))
+        % (table, self.get_ingest_mapping(schema_file))
         return command
 
     def batch_policy(self,database):
@@ -212,9 +213,9 @@ class ADXHelper:
         :param table: table name
         :type table: string
         """
-        ingestion_policy_json = BATCH_INGESTION_POLICY.format(MAX_BATCHTIME=MAX_BATCHTIME, \
-            MAX_ITEMS=MAX_ITEMS, \
-            MAX_RAWSIZE=MAX_RAWSIZE)
+        ingestion_policy_json = self.BATCH_INGESTION_POLICY.format(MAX_BATCHTIME=self.MAX_BATCHTIME, \
+            MAX_ITEMS=self.MAX_ITEMS, \
+            MAX_RAWSIZE=self.MAX_RAWSIZE)
         ingestion_policy = json.dumps(json.loads(ingestion_policy_json))
 
         command = ".alter database [%s] policy ingestionbatching @'%s'"%(database, ingestion_policy)
@@ -233,27 +234,45 @@ class ADXHelper:
         """
         return '.drop %s %s ifexists' % (entity_type, entity_value)
 
-
-
     def create_database(self,number_of_companies):
         """create_database
         :param number_of_companies: number_of_companies
         :type number_of_companies: int
         """
-        soft_deleteperiod = timedelta(days=SOFTDELETEPERIOD)
-        hot_cacheperiod = timedelta(days=HOTCACHEPERIOD)
-        database_operations = KUSTO_MGMT_CLIENT.databases
+        soft_deleteperiod = timedelta(days=self.SOFTDELETEPERIOD)
+        hot_cacheperiod = timedelta(days=self.HOTCACHEPERIOD)
+        database_operations = self.KUSTO_MGMT_CLIENT.databases
         for index in range(0, number_of_companies):
             try:
-                database_name = DATABASE_NAME_FORMAT.format(INDEX=index)
-                _database = ReadWriteDatabase(location=REGION, soft_delete_period=soft_deleteperiod, \
+                database_name = self.DATABASE_NAME_FORMAT.format(INDEX=index)
+                _database = ReadWriteDatabase(location=self.REGION, soft_delete_period=soft_deleteperiod, \
                     hot_cache_period=hot_cacheperiod)
                 print(f"Create Database {index} - {database_name}")
-                database_operations.create_or_update(resource_group_name=RESOURCE_GROUP, \
-                    cluster_name=CLUSTER_NAME, database_name=database_name, parameters=_database)
+                database_operations.create_or_update(resource_group_name=self.RESOURCE_GROUP, \
+                    cluster_name=self.CLUSTER_NAME, database_name=database_name, parameters=_database)
             except Exception as err:
                 print(err)
                 raise
+
+    def create_database_by_dbnames(self,db_names):
+        """create_database by dbnames
+        :param db_names: db names
+        :type db_names: string
+        """
+        soft_deleteperiod = timedelta(days=self.SOFTDELETEPERIOD)
+        hot_cacheperiod = timedelta(days=self.HOTCACHEPERIOD)
+        database_operations = self.KUSTO_MGMT_CLIENT.databases
+        dblist = db_names.split(",")
+        for dbname in dblist:
+            try:
+                _database = ReadWriteDatabase(location=self.REGION, soft_delete_period=soft_deleteperiod, \
+                    hot_cache_period=hot_cacheperiod)
+                database_operations.create_or_update(resource_group_name=self.RESOURCE_GROUP, \
+                    cluster_name=self.CLUSTER_NAME, database_name=dbname, parameters=_database)
+                print ("Created ADX Database {}".format(dbname))
+            except Exception as err:
+                print(err)
+                raise            
 
     def update_retention_date(self,number_of_companies):
         """update table retention date
@@ -262,14 +281,14 @@ class ADXHelper:
         """
         print("update retention date")
         for index in range(0, number_of_companies):
-            database_name = DATABASE_NAME_FORMAT.format(INDEX=index)
+            database_name = self.DATABASE_NAME_FORMAT.format(INDEX=index)
             print(f"Update retention date Policy for Database {index} - {database_name}")
             command_list = []
-            for table_name in TABLE_LIST:
-                command_list.append(retention_policy(table_name))
+            for table_name in self.TABLE_LIST:
+                command_list.append(self.retention_policy(table_name))
             try:
                 for command in command_list:
-                    SERVICE_CLIENT.execute(database_name, command)
+                    self.SERVICE_CLIENT.execute(database_name, command)
             except Exception as err:
                 print(err)
                 raise
@@ -282,12 +301,12 @@ class ADXHelper:
         """
         print("update_ingestion_policy")
         for index in range(0, number_of_companies):
-            database_name = DATABASE_NAME_FORMAT.format(INDEX=index)
+            database_name = self.DATABASE_NAME_FORMAT.format(INDEX=index)
             print(f"Update Ingestion Policy for Database {index} - {database_name}")
-            command = batch_policy(database_name)
+            command = self.batch_policy(database_name)
             print(f"Batch Policy Command:{command}")
             try:
-                SERVICE_CLIENT.execute_mgmt(database_name, command)
+                self.SERVICE_CLIENT.execute_mgmt(database_name, command)
             except Exception as err:
                 print(err)
                 raise
@@ -302,36 +321,61 @@ class ADXHelper:
         :type schema_file: json
         """
         for index in range(0, number_of_companies):
-            database_name = DATABASE_NAME_FORMAT.format(INDEX=index)
-            print(f"Create Table for Database {index} - {database_name}")
+            database_name = self.DATABASE_NAME_FORMAT.format(INDEX=index)
+            print(f"Create Table for Database {index} - {database_name} based on {schema_file} schema file")
             #add_userrole(database_name)
-            command_list = create_tables_command(schema_file)
+            command_list = self.create_tables_command(schema_file)
             try:
                 for command in command_list:
                     #while True:
-                    SERVICE_CLIENT.execute(database_name, command)
+                    self.SERVICE_CLIENT.execute(database_name, command)
             except Exception as err:
                 print(err)
                 raise
+            print(f"Finished creating Table for Database {index} - {database_name} based on {schema_file} schema file")
+
+
+    def create_table_by_dbnames(self,db_names, schema_file):
+        """create table for existing database
+        :param number_of_companies: number_of_companies
+        :type number_of_companies: int
+        :param schema_file: schema file
+        :type schema_file: json
+        """
+
+        dblist = db_names.split(",")
+        for dbname in dblist:
+            database_name = dbname
+            print(f"Create Table for Database {database_name} based on {schema_file} schema file")
+            #add_userrole(database_name)
+            command_list = self.create_tables_command(schema_file)
+            try:
+                for command in command_list:
+                    #while True:
+                    self.SERVICE_CLIENT.execute(database_name, command)
+            except Exception as err:
+                print(err)
+                raise
+            print(f"Finished creating Table for Database {database_name}  based on {schema_file} schema file")
+
 
 
     def delete_database(self,number_of_companies):
         """deletedatabase
-
-    :param number_of_companies: number_of_companies
+        :param number_of_companies: number_of_companies
         :type number_of_companies: int
         """
-        soft_deleteperiod = timedelta(days=ADXHelper.SOFTDELETEPERIOD)
-        hot_cacheperiod = timedelta(days=ADXHelper.HOTCACHEPERIOD)
+        soft_deleteperiod = timedelta(days=self.SOFTDELETEPERIOD)
+        hot_cacheperiod = timedelta(days=self.HOTCACHEPERIOD)
         for index in range(0, number_of_companies):
             try:
-                database_name = DATABASE_NAME_FORMAT.format(INDEX=index)
+                database_name = self.DATABASE_NAME_FORMAT.format(INDEX=index)
                 print(f"Delete Database {index} - {database_name}")
-                database_operations = KUSTO_MGMT_CLIENT.databases
-                _database = ReadWriteDatabase(location=REGION, soft_delete_period=soft_deleteperiod, \
+                database_operations =self.KUSTO_MGMT_CLIENT.databases
+                _database = ReadWriteDatabase(location=self.REGION, soft_delete_period=soft_deleteperiod, \
                 hot_cache_period=hot_cacheperiod)
-                database_operations.delete(resource_group_name=RESOURCE_GROUP, \
-                    cluster_name=CLUSTER_NAME, database_name=database_name, \
+                database_operations.delete(resource_group_name=self.RESOURCE_GROUP, \
+                    cluster_name=self.CLUSTER_NAME, database_name=database_name, \
                     parameters=_database)
             except Exception as err:
                 print(err)
@@ -346,11 +390,11 @@ class ADXHelper:
         :type schema_file: json
         """
         command_list = []
-        for table_name in TABLE_LIST:
-            schema = get_schema(schema_file, False)
-            command_list.append(create_table_command(table_name, schema))
-            command_list.append(retention_policy(table_name))
-            command_list.append(ingestion_mapping_command(table_name, schema_file))
+        for table_name in self.TABLE_LIST:
+            schema = self.get_schema(schema_file, False)
+            command_list.append(self.create_table_command(table_name, schema))
+            command_list.append(self.retention_policy(table_name))
+            command_list.append(self.ingestion_mapping_command(table_name, schema_file))
         return command_list
 
     def run_adx_csl_command(self,file_path,number_of_companies):
@@ -365,10 +409,10 @@ class ADXHelper:
             csl_command=csl_file.read()
 
         for index in range(0, number_of_companies):
-            database_name = DATABASE_NAME_FORMAT.format(INDEX=index)
+            database_name = self.DATABASE_NAME_FORMAT.format(INDEX=index)
             print(f"Update Ingestion Policy for Database {index} - {database_name}")
             try:
-                SERVICE_CLIENT.execute_mgmt(database_name, csl_command)
+                self.SERVICE_CLIENT.execute_mgmt(database_name, csl_command)
             except Exception as err:
                 print(err)
                 raise
@@ -380,35 +424,32 @@ class ADXHelper:
                                              ingestion_mapping_reference='json_mapping_01', \
                                              flush_immediately=flush_immediately,\
                                              report_level=ReportLevel.FailuresAndSuccesses)
-
         #TODO: add get file size code 
         file_descriptor = FileDescriptor(data_file_path, 15360)  # in this example, the raw (uncompressed) size of the data is 15KB (15360 bytes)
-        ADXHelper.QUEUEDINGESTCLIENT.ingest_from_file(file_descriptor, ingestion_properties=ingestion_props)
+        self.QUEUEDINGESTCLIENT.ingest_from_file(file_descriptor, ingestion_properties=ingestion_props)
         print("Finish Ingest From File")
         #QUEUEDINGESTCLIENT.ingest_from_file("{filename}.csv", ingestion_properties=ingestion_props)
 
-
-    def run_kql_query(self,database_name,table_name):
+    def run_kql_query(self,database_name,kql, is_print_result):
         
-        db = database_name
-        query = "{} | count".format(table_name)
-
-        print ("RUN KQL Query {}".format(query))
-        response = ADXHelper.SERVICE_CLIENT.execute(db, query)
+        print ("RUN KQL Query {} in {} Database".format(kql,database_name))
+        response = self.SERVICE_CLIENT.execute(database_name, kql)
+        print( "The KQL Query finds {} records".format(len(response.primary_results[0])))
         for row in response.primary_results[0]:
-            print (row[0])
-            print (row)
+            print ("First column of  query result is: {} ".format(row[0]))
+            print ("First query result is: {} ".format(row))
+
             #print(row[0], " ", row["EventType"])
+        return response.primary_results[0]
 
 
 if __name__ == "__main__": # pragma: no cover
-    init_config()
-    initialize_kusto_client()
+
 
     # Get related arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('act', help='action will be performed', type=str, \
-                        choices=["createDatabase", "createTableofDatabase", \
+                        choices=["createDatabase","createDatabaseByDBNames", "createTableofDatabase","createTableByDBNames", \
                         "deleteDatabase", "dropTables", "updateDatabaseIngestPolicy", \
                         "updateretentiondate", "runcsl"])
     parser.add_argument('-s', '--schemaFp', \
@@ -416,12 +457,28 @@ if __name__ == "__main__": # pragma: no cover
         type=str)
     parser.add_argument('-c', '--deviceCount', help='Device count. format: int',
                         type=int)
+    parser.add_argument('-d', '--databasenames', help='Database Names, seperate each name by comma. Format: string  ',
+                        type=str)
+#    parser.add_argument('-i', '--clientid', help='Service Principle Client ID',
+#                        type=str)
+#    parser.add_argument('-t', '--clientsecret', help='Service Principle Client Secret',
+#                        type=str)           
     args = parser.parse_args()
 
     # Retrieve parameters
     act = args.act
     schemaFp = args.schemaFp
     databaseCount = args.deviceCount
+    databasenames= args.databasenames
+
+    adxutil=ADXHelper()
+    adxutil.init_config()
+    adxutil.initialize_kusto_client()
+
+#    adxutil.CLIENT_ID=args.clientid
+#    adxutil.CLIENT_SECRET=args.clientsecret
+
+    print("Parameters act: {}, schema files: {}, databaseCount: {}, database name: {}".format(act,schemaFp,databaseCount,databasenames))
 
     # validate args. Error if schema file is not assigned
     if act in ("createTableofDatabase") \
@@ -432,14 +489,18 @@ if __name__ == "__main__": # pragma: no cover
     # run functions
     s = []
     if act == "createDatabase":
-        create_database(databaseCount)
+        adxutil.create_database(databaseCount)
+    elif act == "createDatabaseByDBNames":
+        adxutil.create_database_by_dbnames(databasenames)   
+    elif act == "createTableByDBNames":
+        adxutil.create_table_by_dbnames(databasenames,schemaFp)  
     elif act == "createTableofDatabase":
-        create_table_of_database(databaseCount, schemaFp)
+        adxutil.create_table_of_database(databaseCount,schemaFp)
     elif act == "updateDatabaseIngestPolicy":
-        update_ingestion_policy(databaseCount)
+        adxutil.update_ingestion_policy(databaseCount)
     elif act == "deleteDatabase":
-        delete_database(databaseCount)
+        adxutil.delete_database(databaseCount)
     elif act == "updateretentiondate":
-        update_retention_date(databaseCount)
+        adxutil.update_retention_date(databaseCount)
     elif act =="runcsl":
-        run_adx_csl_command(databaseCount, schemaFp)
+        adxutil.run_adx_csl_command(databaseCount, schemaFp)

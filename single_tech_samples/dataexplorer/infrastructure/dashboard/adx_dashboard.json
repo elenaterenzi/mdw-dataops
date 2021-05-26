@@ -1,0 +1,389 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"DashboardName": {
+			"type": "string"
+		},
+		"ADXClusterName": {
+			"type": "string"
+		}
+	},
+	"variables": {
+
+	},
+	"resources": [
+		{
+			"properties": {
+				"lenses": {
+					"0": {
+						"order": 0,
+						"parts": {							
+							"0": {
+								"position": {
+									"x": 0,
+									"y": 0,
+									"colSpan": 5,
+									"rowSpan": 3
+								},
+								"metadata": {
+									"inputs": [
+										{
+											"name": "options",
+											"isOptional": true
+										},
+										{
+											"name": "sharedTimeRange",
+											"isOptional": true
+										}
+									],
+									"type": "Extension/HubsExtension/PartType/MonitorChartPart",
+									"settings": {
+										"content": {
+											"options": {
+												"chart": {
+													"metrics": [
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "CPU",
+															"aggregationType": 4,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "CPU"
+															}
+														},
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "CPU",
+															"aggregationType": 3,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "CPU"
+															}
+														},
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "IngestionUtilization",
+															"aggregationType": 4,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Ingestion utilization"
+															}
+														},
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "IngestionUtilization",
+															"aggregationType": 3,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Ingestion utilization"
+															}
+														}
+													],
+													"title": "[concat('Avg CPU, Avg Ingestion utilization, Max utilization for ', parameters('ADXClusterName'))]",
+													"titleKind": 2,
+													"visualization": {
+														"chartType": 2,
+														"legendVisualization": {
+															"isVisible": true,
+															"position": 2,
+															"hideSubtitle": false
+														},
+														"axisVisualization": {
+															"x": {
+																"isVisible": true,
+																"axisType": 2
+															},
+															"y": {
+																"isVisible": true,
+																"axisType": 1
+															}
+														},
+														"disablePinning": true
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							"1": {
+								"position": {
+									"x": 5,
+									"y": 0,
+									"colSpan": 5,
+									"rowSpan": 3
+								},
+								"metadata": {
+									"inputs": [
+										{
+											"name": "options",
+											"isOptional": true
+										},
+										{
+											"name": "sharedTimeRange",
+											"isOptional": true
+										}
+									],
+									"type": "Extension/HubsExtension/PartType/MonitorChartPart",
+									"settings": {
+										"content": {
+											"options": {
+												"chart": {
+													"metrics": [
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "IngestionLatencyInSeconds",
+															"aggregationType": 4,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Ingestion latency (in seconds)"
+															}
+														},
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "IngestionLatencyInSeconds",
+															"aggregationType": 3,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Ingestion latency (in seconds)"
+															}
+														}
+													],
+													"title": "[concat('Avg/Max Ingestion latency for ', parameters('ADXClusterName'))]",
+													"titleKind": 2,
+													"visualization": {
+														"chartType": 2,
+														"legendVisualization": {
+															"isVisible": true,
+															"position": 2,
+															"hideSubtitle": false
+														},
+														"axisVisualization": {
+															"x": {
+																"isVisible": true,
+																"axisType": 2
+															},
+															"y": {
+																"isVisible": true,
+																"axisType": 1
+															}
+														},
+														"disablePinning": true
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							"2": {
+								"position": {
+									"x": 0,
+									"y": 3,
+									"colSpan": 5,
+									"rowSpan": 3
+								},
+								"metadata": {
+									"inputs": [
+										{
+											"name": "options",
+											"isOptional": true
+										},
+										{
+											"name": "sharedTimeRange",
+											"isOptional": true
+										}
+									],
+									"type": "Extension/HubsExtension/PartType/MonitorChartPart",
+									"settings": {
+										"content": {
+											"options": {
+												"chart": {
+													"metrics": [
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "IngestionResult",
+															"aggregationType": 7,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Ingestion result"
+															}
+														}
+													],
+													"title": "[concat('Count Ingestion result for ', parameters('ADXClusterName'))]",
+													"titleKind": 1,
+													"visualization": {
+														"chartType": 2,
+														"legendVisualization": {
+															"isVisible": true,
+															"position": 2,
+															"hideSubtitle": false
+														},
+														"axisVisualization": {
+															"x": {
+																"isVisible": true,
+																"axisType": 2
+															},
+															"y": {
+																"isVisible": true,
+																"axisType": 1
+															}
+														},
+														"disablePinning": true
+													}
+												}
+											}
+										}
+									}
+								}
+							},
+							"3": {
+								"position": {
+									"x": 5,
+									"y": 3,
+									"colSpan": 5,
+									"rowSpan": 3
+								},
+								"metadata": {
+									"inputs": [
+										{
+											"name": "options",
+											"isOptional": true
+										},
+										{
+											"name": "sharedTimeRange",
+											"isOptional": true
+										}
+									],
+									"type": "Extension/HubsExtension/PartType/MonitorChartPart",
+									"settings": {
+										"content": {
+											"options": {
+												"chart": {
+													"metrics": [
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "KeepAlive",
+															"aggregationType": 4,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Keep alive"
+															}
+														},
+														{
+															"resourceMetadata": {
+																"id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name ,'/providers/Microsoft.Kusto/clusters/', parameters('ADXClusterName'))]"
+															},
+															"name": "InstanceCount",
+															"aggregationType": 2,
+															"namespace": "microsoft.kusto/clusters",
+															"metricVisualization": {
+																"displayName": "Instance Count"
+															}
+														}
+													],
+													"title": "[concat('Avg Keep alive and Min Instance Count for ', parameters('ADXClusterName'))]",
+													"titleKind": 1,
+													"visualization": {
+														"chartType": 2,
+														"legendVisualization": {
+															"isVisible": true,
+															"position": 2,
+															"hideSubtitle": false
+														},
+														"axisVisualization": {
+															"x": {
+																"isVisible": true,
+																"axisType": 2
+															},
+															"y": {
+																"isVisible": true,
+																"axisType": 1
+															}
+														},
+														"disablePinning": true
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"metadata": {
+					"model": {
+						"timeRange": {
+							"value": {
+								"relative": {
+									"duration": 24,
+									"timeUnit": 1
+								}
+							},
+							"type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+						},
+						"filterLocale": {
+							"value": "en-us"
+						},
+						"filters": {
+							"value": {
+								"MsPortalFx_TimeRange": {
+									"model": {
+										"format": "local",
+										"granularity": "auto",
+										"relative": "5m"
+									},
+									"displayCache": {
+										"name": "Local Time",
+										"value": "Past 12 hours"
+									},
+									"filteredPartIds": [
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c474",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c476",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c478",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c47a",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c47c",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c47e",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c480",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c482",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c484",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c486",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c488",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c48a",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c48c",
+										"StartboardPart-MonitorChartPart-3d49ae1b-7cc5-46b4-aeec-72a5b171c48e"
+									]
+								}
+							}
+						}
+					}
+				}
+			},
+			"name": "[parameters('DashboardName')]",
+			"type": "Microsoft.Portal/dashboards",
+			"location": "[resourceGroup().location]",
+			"tags": {
+				"hidden-title": "[parameters('DashboardName')]"
+			},
+			"apiVersion": "2015-08-01-preview"
+		}
+	]
+}
