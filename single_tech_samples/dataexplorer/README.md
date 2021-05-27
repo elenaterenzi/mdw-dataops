@@ -129,9 +129,8 @@ To setup the samples, run the following:
        - **GITHUB_PAT_TOKEN** - a Github PAT token. Generate them [here](https://github.com/settings/tokens). This requires "repo" scope.
 
        Optionally, set the following environment variables:
-       - **RESOURCE_GROUP_LOCATION** - Azure location to deploy resources. *Default*: `westus`.
+       - **RESOURCE_GROUP_LOCATION** - Azure location to deploy resources. *Default*: `southeastasia`.
        - **AZURE_SUBSCRIPTION_ID** - Azure subscription id to use to deploy resources. *Default*: default azure subscription. To see your default, run `az account list`.
-       - **RESOURCE_GROUP_NAME_PREFIX** - name of the resource group. This will automatically be appended with the environment name. For example: `RESOURCE_GROUP_NAME_PREFIX-dev-rg`. *Default*: mdwdo-ado-${DEPLOYMENT_ID}.
        - **DEPLOYMENT_ID** - string appended to all resource names. This is to ensure uniqueness of azure resource names. *Default*: random five character string.
        - **AZDO_PIPELINES_BRANCH_NAME** - git branch where Azure DevOps pipelines definitions are retrieved from. *Default*: master.
 
@@ -139,10 +138,9 @@ To setup the samples, run the following:
 
 2. **Deploy Azure resources**
    1. Clone locally the imported Github Repo, then `cd` into the `single_tech_samples/datafactory` folder of the repo
-   2. Run `./deploy.sh`.
-      - After a successful deployment, you will find `.env.{environment_name}` files containing essential configuration information per environment. See [here](#deployed-resources) for list of deployed resources.
+   2. Run `./scripts/pwsh/deploy-pipeline.ps1`.
+      - After a successful deployment, you will find `./scripts/push/config/provision-config.json` files containing essential configuration information per environment. 
    3. As part of the deployment script, this updated the Azure DevOps Release Pipeline YAML definition to point to your Github repository. **Commit and push up these changes.**
-
 
 
 
@@ -150,14 +148,18 @@ To setup the samples, run the following:
 
 1. **Create Service Principle for deploying resources**
 
-    update KeyValut 
+   Run `./scripts/pwsh/create-service-principle.ps1` to setup the Service Principle for the deployment. 
 
 2. **Modify the configuration files**
 
+   1. Modify `./scripts/pwsh/config/provision-config.json` with the ADX cluster setting and resource name in your environment.
+   2. Modify `./src/python/FieldList` which defines the table schema
+   3. Modify `./pipelines/ADX-Deployment.yml` to change the database list, tables list and testing data files list for the system. 
+   2. check-in the modified provision-config.json files 
 
 3. **Run the pipeline to deploy the resources**
 
-
+   Run the pipeline in Azure DevOp portal. 
 
 ![img](./docs/images/pipeline-create-multitenant.png)
 
