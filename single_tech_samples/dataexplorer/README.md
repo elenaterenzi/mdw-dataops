@@ -72,7 +72,7 @@ __3. Use sample data to test the resource provision result.__
 After provision the cluster, database and tables, we want to validate and testing if we have a ready data repository for applications. We use sample data that mimic real data to do the end-to-end ingestion and query testing so we can make sure the provisioned tables meet the requirements and are ready for use. 
 
 __4. Store secrets in Azure Key Vault__
-
+We store all secrets in Azure Key Vault to make sure this sensitive information is securely stored and protected. 
 
 ## Key Concepts
 
