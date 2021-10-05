@@ -58,16 +58,6 @@ set -o xtrace # For debugging
 
 # Const
 apiBaseUrl="https://data.melbourne.vic.gov.au/resource/"
-if [ "$ENV_NAME" == "dev" ]
-then 
-    # In DEV, we fix the path to "dev" folder  to simplify as this is manual publish DEV ADF.
-    # In other environments, the ADF release pipeline overwrites these automatically.
-    databricksDbfsLibPath="dbfs:/mnt/datalake/sys/databricks/libs/dev/"
-    databricksNotebookPath='/releases/dev/'
-else
-    databricksDbfsLibPath='dbfs:/mnt/datalake/sys/databricks/libs/$(Build.BuildId)'
-    databricksNotebookPath='/releases/$(Build.BuildId)'
-fi
 
 # Create vargroup
 vargroup_name="${PROJECT}-release-$ENV_NAME"
@@ -76,17 +66,14 @@ if vargroup_id=$(az pipelines variable-group list -o tsv | grep "$vargroup_name"
     az pipelines variable-group delete --id "$vargroup_id" -y
 fi
 echo "Creating variable group: $vargroup_name"
-az pipelines variable-group create \
+vargroup_id=$(az pipelines variable-group create \
     --name "$vargroup_name" \
     --authorize "true" \
     --variables \
         azureLocation="$AZURE_LOCATION" \
         rgName="$RESOURCE_GROUP_NAME" \
-        adfName="$DATAFACTORY_NAME" \
-        databricksDbfsLibPath="$databricksDbfsLibPath" \
-        databricksNotebookPath="$databricksNotebookPath" \
         apiBaseUrl="$apiBaseUrl" \
-    --output json
+    --output json | jq -r .id)
 
 # Create vargroup - for secrets
 vargroup_secrets_name="${PROJECT}-secrets-$ENV_NAME"
@@ -99,13 +86,14 @@ vargroup_secrets_id=$(az pipelines variable-group create \
     --name "$vargroup_secrets_name" \
     --authorize "true" \
     --output json \
-    --variables foo="bar" | jq -r .id)  # Needs at least one secret
+    --variables foo="bar" | jq -r .id)  # Needs at least one variable
 
+# Keyvault
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "subscriptionId" --value "$AZURE_SUBSCRIPTION_ID"
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "kvUrl" --value "$KV_URL"
-# sql server
+# SQL DW / SQL Pools
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "sqlsrvrName" --value "$SQL_SERVER_NAME"
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
@@ -114,35 +102,63 @@ az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "sqlsrvrPassword" --value "$SQL_SERVER_PASSWORD"
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "sqlDwDatabaseName" --value "$SQL_DW_DATABASE_NAME"
-# Databricks
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "databricksDomain" --value "$DATABRICKS_HOST"
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "databricksToken" --value "$DATABRICKS_TOKEN"
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "databricksWorkspaceResourceId" --value "$DATABRICKS_WORKSPACE_RESOURCE_ID"
 # Datalake
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "datalakeAccountName" --value "$AZURE_STORAGE_ACCOUNT"
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "datalakeKey" --value "$AZURE_STORAGE_KEY"
-# Adf
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "spAdfId" --value "$SP_ADF_ID"
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "spAdfPass" --value "$SP_ADF_PASS"
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "spAdfTenantId" --value "$SP_ADF_TENANT"
 # Log Analytics
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "logAnalyticsWorkspaceId" --value "$LOG_ANALYTICS_WS_ID"
 az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
     --secret "true" --name "logAnalyticsWorkspaceKey" --value "$LOG_ANALYTICS_WS_KEY"
-# Synapse
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "synapseWorkspaceName" --value "$SYNAPSE_WORKSPACE_NAME"
-az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
-    --secret "true" --name "synapseSparkPoolName" --value "$BIG_DATAPOOL_NAME"
+
+
+if [ "$FLAVOUR" == "Databricks" ];
+then
+    if [ "$ENV_NAME" == "dev" ]
+    then 
+        # In DEV, we fix the path to "dev" folder  to simplify as this is manual publish DEV ADF.
+        # In other environments, the ADF release pipeline overwrites these automatically.
+        databricksDbfsLibPath="dbfs:/mnt/datalake/sys/databricks/libs/dev/"
+        databricksNotebookPath='/releases/dev/'
+    else
+        # shellcheck disable=SC2016
+        databricksDbfsLibPath='dbfs:/mnt/datalake/sys/databricks/libs/$(Build.BuildId)'
+        # shellcheck disable=SC2016
+        databricksNotebookPath='/releases/$(Build.BuildId)'
+    fi
+    # Databricks
+    az pipelines variable-group variable create --group-id "$vargroup_id" \
+        --name "databricksDbfsLibPath" --value "$databricksDbfsLibPath"
+    az pipelines variable-group variable create --group-id "$vargroup_id" \
+        --name "databricksNotebookPath" --value "$databricksNotebookPath"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "databricksDomain" --value "$DATABRICKS_HOST"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "databricksToken" --value "$DATABRICKS_TOKEN"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "databricksWorkspaceResourceId" --value "$DATABRICKS_WORKSPACE_RESOURCE_ID"
+    # Adf
+    az pipelines variable-group variable create --group-id "$vargroup_id" \
+        --name "adfName" --value "$DATAFACTORY_NAME"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "spAdfId" --value "$SP_ADF_ID"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "spAdfPass" --value "$SP_ADF_PASS"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "spAdfTenantId" --value "$SP_ADF_TENANT"
+fi
+
+
+if [ "$FLAVOUR" == "Synapse" ];
+then
+    # Synapse
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "synapseWorkspaceName" --value "$SYNAPSE_WORKSPACE_NAME"
+    az pipelines variable-group variable create --group-id "$vargroup_secrets_id" \
+        --secret "true" --name "synapseSparkPoolName" --value "$BIG_DATAPOOL_NAME"
+fi
 
 # Delete dummy vars
 az pipelines variable-group variable delete --group-id "$vargroup_secrets_id" --name "foo" -y
