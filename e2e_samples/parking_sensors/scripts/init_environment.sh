@@ -19,7 +19,7 @@ fi
 DEPLOYMENT_ID=${DEPLOYMENT_ID:-}
 if [ -z "$DEPLOYMENT_ID" ]
 then 
-    export DEPLOYMENT_ID="$(random_str 5)"
+    export DEPLOYMENT_ID=$(tr -dc a-z0-9 </dev/urandom | head -c 5 ; echo '')
     echo "No deployment id [DEPLOYMENT_ID] specified, defaulting to $DEPLOYMENT_ID"
 fi
 
