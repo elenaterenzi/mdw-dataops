@@ -1,0 +1,9 @@
+{
+	"name": "mdwdops-adf-dev-xrisr",
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "02c929ed-f1bb-4cf5-9355-ca9112772873",
+		"tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+	}
+}
