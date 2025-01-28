@@ -5,15 +5,16 @@
 		"annotations": [],
 		"type": "AzureDatabricks",
 		"typeProperties": {
-			"domain": "https://adb-4406709970563688.8.azuredatabricks.net",
+			"domain": "https://adb-4502781428707003.3.azuredatabricks.net",
 			"authentication": "MSI",
-			"workspaceResourceId": "/subscriptions/c20af4c3-6b7a-4ee8-b830-a2a69c4a56ac/resourceGroups/mdwdops-16-dev-rg/providers/Microsoft.Databricks/workspaces/mdwdops-dbw-dev-16",
-			"newClusterNodeType": "Standard_DS3_v2",
+			"workspaceResourceId": "/subscriptions/ab1f9369-e10d-4660-8be0-79392069781a/resourceGroups/mdwdops-bfehr-dev-rg/providers/Microsoft.Databricks/workspaces/mdwdops-dbw-dev-bfehr",
+			"newClusterNodeType": "Standard_DC4as_v5",
 			"newClusterNumOfWorker": "1",
 			"newClusterSparkEnvVars": {
 				"PYSPARK_PYTHON": "/databricks/python3/bin/python3"
 			},
-			"newClusterVersion": "7.3.x-scala2.12",
+			"newClusterVersion": "13.3.x-scala2.12",
+			"clusterOption": "Fixed",
 			"newClusterInitScripts": []
 		}
 	}

@@ -30,7 +30,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/notebooks/02_standardize",
+					"notebookPath": "/releases/dev/02_standardize.py",
 					"baseParameters": {
 						"infilefolder": {
 							"value": "@variables('infilefolder')",
@@ -43,7 +43,7 @@
 					},
 					"libraries": [
 						{
-							"egg": "dbfs:/mnt/datalake/sys/databricks/libs/ddo_transform-localdev-py2.py3-none-any.whl"
+							"egg": "dbfs:/ddo_transform-localdev-py2.py3-none-any.whl"
 						},
 						{
 							"pypi": {
@@ -61,6 +61,10 @@
 				"name": "Set infilefolder",
 				"type": "SetVariable",
 				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "infilefolder",
@@ -91,9 +95,14 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "RestSource",
-						"httpRequestTimeout": "00:01:40",
-						"requestInterval": "00.00:00:00.010"
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
 					},
 					"sink": {
 						"type": "AzureBlobFSSink"
@@ -102,11 +111,8 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "Ds_REST_MelbParkingData",
-						"type": "DatasetReference",
-						"parameters": {
-							"relativeurl": "dtpv-d4pf.json"
-						}
+						"referenceName": "Ds_Http_Parking_Bay",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
@@ -145,9 +151,14 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "RestSource",
-						"httpRequestTimeout": "00:01:40",
-						"requestInterval": "00.00:00:00.010"
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
 					},
 					"sink": {
 						"type": "AzureBlobFSSink"
@@ -156,11 +167,8 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "Ds_REST_MelbParkingData",
-						"type": "DatasetReference",
-						"parameters": {
-							"relativeurl": "wuf8-susg.json"
-						}
+						"referenceName": "Ds_Http_Parking_Bay_Sensors",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
@@ -198,7 +206,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/notebooks/03_transform",
+					"notebookPath": "/releases/dev/03_transform.py",
 					"baseParameters": {
 						"loadid": {
 							"value": "@pipeline().RunId",
@@ -207,7 +215,7 @@
 					},
 					"libraries": [
 						{
-							"egg": "dbfs:/mnt/datalake/sys/databricks/libs/ddo_transform-localdev-py2.py3-none-any.whl"
+							"egg": "dbfs:/ddo_transform-localdev-py2.py3-none-any.whl"
 						},
 						{
 							"pypi": {
@@ -265,7 +273,7 @@
 			}
 		},
 		"annotations": [],
-		"lastPublishTime": "2021-10-13T14:34:29Z"
+		"lastPublishTime": "2025-01-28T15:42:42Z"
 	},
 	"type": "Microsoft.DataFactory/factories/pipelines"
 }
